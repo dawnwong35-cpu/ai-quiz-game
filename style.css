@@ -1,0 +1,161 @@
+:root {
+    --neon-cyan: #00f2ff;
+    --neon-purple: #7000ff;
+    --neon-red: #ff3d71;
+    --bg-dark: #0a0e17;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--bg-dark);
+}
+
+.custom-scroll::-webkit-scrollbar { width: 4px; }
+.custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+
+/* Identity Cards */
+.identity-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 3rem;
+    padding: 3.5rem 2.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.identity-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-12px);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+}
+
+.identity-icon {
+    width: 90px;
+    height: 90px;
+    border-radius: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    transition: all 0.3s;
+}
+
+/* Category Tags */
+.cat-tag {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #888;
+    transition: all 0.3s;
+}
+.cat-tag.active {
+    background: var(--neon-cyan);
+    color: black;
+    border-color: var(--neon-cyan);
+}
+
+/* Progression Dots */
+.prog-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.4s;
+}
+.prog-dot.active {
+    background: var(--neon-cyan);
+    box-shadow: 0 0 12px var(--neon-cyan);
+    transform: scale(1.2);
+}
+
+/* Option Buttons */
+.option-btn {
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.25s;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    width: 100%;
+    font-weight: 600;
+}
+
+.option-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.02);
+}
+
+.option-btn.correct { background: rgba(0, 255, 170, 0.1) !important; border-color: #00ffaa !important; color: #00ffaa; }
+.option-btn.wrong { background: rgba(255, 61, 113, 0.1) !important; border-color: #ff3d71 !important; color: #ff3d71; }
+
+.option-index {
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 900;
+}
+
+/* Timer Warning */
+.timer-critical {
+    animation: critical-pulse 0.5s infinite alternate;
+    background-color: var(--neon-red) !important;
+    box-shadow: 0 0 20px var(--neon-red) !important;
+}
+
+@keyframes critical-pulse {
+    from { opacity: 0.7; }
+    to { opacity: 1; filter: brightness(1.5); }
+}
+
+/* Feedback Screens */
+#feedback-overlay.correct { background: radial-gradient(circle, rgba(0, 255, 170, 0.15) 0%, transparent 70%); opacity: 1; }
+#feedback-overlay.wrong { background: radial-gradient(circle, rgba(255, 61, 113, 0.15) 0%, transparent 70%); opacity: 1; }
+
+/* Glossary highlighting */
+.glossary-term {
+    border-bottom: 2px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    cursor: help;
+    padding-bottom: 1px;
+}
+
+/* Mobile Sidebar */
+#assistant-sidebar.open {
+    transform: translateX(0);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+.shake { animation: shake 0.2s 3; }
+
+/* Share Card Anim */
+#share-card {
+    transform: perspective(1000px) rotateY(0deg);
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+#share-overlay:not(.hidden) #share-card {
+    animation: entry-float 3s ease-in-out infinite alternate;
+}
+
+@keyframes entry-float {
+    from { transform: translateY(0) rotateX(2deg); }
+    to { transform: translateY(-10px) rotateX(-2deg); }
+}

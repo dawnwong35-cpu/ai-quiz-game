@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI 认知大挑战 | 2026 进化版</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body class="bg-[#0a0e17] text-white overflow-hidden font-sans select-none">
+
+    <!-- Background Elements -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+        <div id="bg-glow-1" class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#7000ff] blur-[140px] rounded-full opacity-20"></div>
+        <div id="bg-glow-2" class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#00f2ff] blur-[140px] rounded-full opacity-20"></div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md hidden">
+        <div class="bg-gray-900 border border-white/10 p-8 rounded-[2.5rem] w-full max-w-sm text-center shadow-2xl">
+            <div class="w-16 h-16 bg-[#00f2ff]/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="user-plus" class="text-[#00f2ff] w-8 h-8"></i>
+            </div>
+            <h3 class="text-2xl font-black mb-2">建立认知档案</h3>
+            <p class="text-gray-400 text-sm mb-8">输入代号以记录你的进化轨迹</p>
+            <input type="text" id="username-input" placeholder="输入玩家昵称..." class="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 mb-6 text-center focus:outline-none focus:border-[#00f2ff] transition-all font-bold">
+            <button id="auth-submit" class="w-full py-4 bg-[#00f2ff] text-black font-black rounded-xl hover:scale-105 transition-transform active:scale-95">
+                初始化档案
+            </button>
+        </div>
+    </div>
+
+    <!-- Glossary Tooltip -->
+    <div id="glossary-tooltip" class="fixed z-[100] hidden pointer-events-none">
+        <div class="bg-gray-900/95 backdrop-blur-xl border border-white/20 p-4 rounded-xl shadow-2xl max-w-xs transition-all transform -translate-x-1/2 -translate-y-full mb-2">
+            <h4 id="tooltip-title" class="text-[#00f2ff] font-bold text-sm mb-1 uppercase tracking-wider"></h4>
+            <p id="tooltip-content" class="text-gray-300 text-xs leading-relaxed"></p>
+            <div class="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-gray-900 border-r border-b border-white/20 rotate-45"></div>
+        </div>
+    </div>
+
+    <!-- AI Assistant Sidebar -->
+    <aside id="assistant-sidebar" class="fixed top-0 right-0 h-full w-full sm:w-96 bg-gray-900/95 backdrop-blur-2xl border-l border-white/10 z-[110] translate-x-full transition-transform duration-500 flex flex-col">
+        <div class="p-6 border-b border-white/10">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-black text-white flex items-center gap-2">
+                    <i data-lucide="brain-circuit" class="text-[#00f2ff]"></i> 认知枢纽
+                </h3>
+                <button id="close-assistant" class="p-2 hover:bg-white/10 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div class="relative">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                    <input type="text" id="assistant-search" placeholder="输入关键词..." class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-[#00f2ff] transition-colors">
+                </div>
+                <div class="flex flex-wrap gap-2" id="assistant-categories">
+                    <button class="cat-tag active" data-cat="all">全部</button>
+                    <button class="cat-tag" data-cat="tech">技术</button>
+                    <button class="cat-tag" data-cat="app">应用</button>
+                </div>
+            </div>
+        </div>
+        <div id="faq-list" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scroll"></div>
+    </aside>
+
+    <!-- Share Overlay -->
+    <div id="share-overlay" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/90 backdrop-blur-xl">
+        <div class="w-full max-w-sm p-8 text-center">
+            <div id="share-card" class="bg-gradient-to-br from-gray-800 to-gray-900 border border-white/20 rounded-[3rem] p-10 mb-8 shadow-2xl">
+                <div class="w-20 h-2
+0 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="qr-code" class="text-[#00f2ff] w-10 h-10"></i>
+                </div>
+                <h4 class="text-3xl font-black mb-2 italic">进化证书</h4>
+                <div id="share-info" class="mb-6">
+                    <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">已达成最高认知等级</p>
+                    <p id="share-rank" class="text-[#00f2ff] font-black text-xl mb-4"></p>
+                    <div class="h-px bg-white/10 w-full mb-4"></div>
+                    <p class="text-5xl font-black tabular-nums" id="share-score">0</p>
+                    <p class="text-[10px] text-gray-500 font-bold mt-2 uppercase">Score Index • 2026 AI Core</p>
+                </div>
+                <p id="share-username" class="text-sm font-mono text-gray-400"></p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <button id="copy-link-btn" class="py-4 bg-white/10 border border-white/10 rounded-2xl font-bold flex items-center justify-center gap-2">
+                    <i data-lucide="link" class="w-4 h-4"></i> 复制链接
+                </button>
+                <button id="close-share" class="py-4 bg-white text-black rounded-2xl font-black">
+                    返回
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Effects -->
+    <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
+    <audio id="sfx-correct" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
+    <audio id="sfx-wrong" src="https://assets.mixkit.co/active_storage/sfx/951/951-preview.mp3" preload="auto"></audio>
+    <audio id="sfx-unlock" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
+    <audio id="bgm" src="https://assets.mixkit.co/active_storage/sfx/123/123-preview.mp3" loop preload="auto"></audio>
+
+    <div id="app" class="relative z-10 flex items-center justify-center min-h-screen p-4">
+        
+        <!-- User Profile Tag -->
+        <div id="user-tag" class="fixed top-4 left-4 z-50 hidden">
+            <div class="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 pl-1 pr-4 py-1 rounded-full">
+                <div class="w-8 h-8 rounded-full bg-[#7000ff] flex items-center justify-center text-[10px] font-black" id="user-avatar">?</div>
+                <div class="flex flex-col">
+                    <span id="user-display-name" class="text-[10px] font-black text-white leading-none">Guest</span>
+                    <span id="user-best-score" class="text-[8px] text-[#00f2ff] uppercase font-bold tracking-tighter">Best: 0</span>
+                </div>
+                <button id="user-logout" class="ml-2 opacity-50 hover:opacity-100 transition-opacity">
+                    <i data-lucide="log-out" class="w-3 h-3"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Top Controls -->
+        <div class="fixed top-4 right-4 z-50 flex gap-2">
+            <button id="toggle-assistant" class="p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/10 hover:bg-white/20 transition-all flex items-center gap-2 px-4 group">
+                <i data-lucide="sparkles" class="w-5 h-5 text-[#00f2ff] group-hover:rotate-12 transition-transform"></i>
+                <span class="text-xs font-bold hidden sm:inline">知识库</span>
+            </button>
+            <button id="toggle-audio" class="p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/10 hover:bg-white/20 transition-all">
+                <i data-lucide="volume-x" id="audio-icon" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Start Screen -->
+        <section id="start-screen" class="text-center max-w-lg">
+            <div class="mb-10">
+                <div class="inline-block p-8 bg-white/5 border border-white/10 rounded-[3rem] backdrop-blur-md mb-6 shadow-2xl relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-[#7000ff]/10 to-[#00f2ff]/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <i data-lucide="cpu" class="w-24 h-24 text-[#00f2ff] mx-auto mb-6 filter drop-shadow-[0_0_20px_rgba(0,242,255,0.6)]"></i>
+                    <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-2 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400">
+                        AI CORE
+                    </h1>
+                    <p class="text-[#00f2ff] font-mono tracking-[0.3em] text-xs uppercase opacity-80">2026 Edition • Cognitive Evolution</p>
+                </div>
+            </div>
+            <button id="to-identity-btn" class="group relative px-16 py-6 bg-[#7000ff] rounded-2xl font-bold overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(112,0,255,0.4)]">
+                <span class="relative z-10 flex items-center justify-center gap-3 text-xl">
+                    进入进化序列 <i data-lucide="zap" class="w-6 h-6"></i>
+                </span>
+                <div class="absolute inset-0 bg-gradient-to-r from-[#7000ff] to-[#00f2ff] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </button>
+        </section>
+
+        <!-- Identity Screen -->
+        <section id="identity-screen" class="hidden w-full max-w-5xl px-4">
+            <h2 class="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight">选择你的认知权重</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="identity-card group" data-identity="non-pro">
+                    <div class="identity-icon bg-cyan-500/10 border border-cyan-500/30 group-hover:bg-cyan-500/30">
+                        <i data-lucide="compass" class="w-10 h-10 text-cyan-400"></i>
+                    </div>
+                    <h3 class="text-3xl font-black mb-3 text-cyan-400">认知探索者</h3>
+                    <p class="text-gray-400 mb-8 leading-relaxed text-sm">洞察 AI 对社会的深远影响。聚焦 AIGC 创意工具、伦理边界及 2026 全球治理政策。</p>
+                    <button class="w-full py-4 bg-white/5 border border-white/10 rounded-xl group-hover:bg-cyan-500 group-hover:text-black transition-all font-black text-lg">激活路径</button>
+                </div>
+                <div class="identity-card group" data-identity="pro">
+                    <div class="identity-icon bg-purple-500/10 border border-purple-500/30 group-hover:bg-purple-500/30">
+                        <i data-lucide="terminal" class="w-10 h-10 text-purple-400"></i>
+                    </div>
+                    <h3 class="text-3xl font-black mb-3 text-purple-400">技术架构师</h3>
+                    <p class="text-gray-400 mb-8 leading-relaxed text-sm">解构底层神经网络。精通 RAG 架构、向量数据库检索优化及大规模模型对齐算法。</p>
+                    <button class="w-full py-4 bg-white/5 border border-white/10 rounded-xl group-hover:bg-purple-500 group-hover:text-black transition-all font-black text-lg">激活路径</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game Screen -->
+        <section id="game-screen" class="hidden w-full max-w-3xl bg-white/5 border border-white/10 p-8 md:p-12 rounded-[3rem] backdrop-blur-3xl shadow-2xl relative">
+            <div class="flex justify-between items-start mb-10">
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center gap-3">
+                        <span id="tier-label" class="text-[11px] font-black uppercase tracking-[0.2em] bg-white/10 px-3 py-1 rounded text-[#00f2ff]">基础级</span>
+                        <div class="flex gap-1.5" id="progression-dots"></div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span id="current-progress" class="text-4xl font-black text-white italic tracking-tighter">1/10</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] text-gray-500 font-black uppercase tracking-widest">Cognition Pts</span>
+                    <div id="current-score" class="text-5xl font-black text-white tabular-nums">0</div>
+                </div>
+            </div>
+
+            <div class="relative h-2 bg-white/5 rounded-full mb-12 overflow-hidden">
+                <div id="timer-bar" class="absolute left-0 top-0 h-full bg-[#00f2ff] w-full transition-all duration-100 ease-linear shadow-[0_0_15px_rgba(0,242,255,0.6)]"></div>
+            </div>
+
+            <div id="question-wrapper">
+                <div id="question-container" class="mb-12">
+                    <div id="difficulty-badge" class="inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase mb-6 border border-white/20 tracking-widest bg-white/5">DIFFICULTY: NOVICE</div>
+                    <h2 id="question-text" class="text-2xl md:text-4xl font-black leading-tight tracking-tight"></h2>
+                </div>
+                <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+            </div>
+        </section>
+
+        <!-- Level Unlock Overlay -->
+        <div id="unlock-overlay" class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/95 backdrop-blur-3xl">
+            <div class="text-center">
+                <div id="unlock-badge-container" class="relative w-48 h-48 mx-auto mb-10">
+                    <div class="absolute inset-0 bg-[#00f2ff] rounded-full blur-[60px] opacity-40 animate-pulse"></div>
+                    <div id="unlock-badge-icon" class="relative w-full h-full flex items-center justify-center rounded-full bg-gradient-to-br from-[#00f2ff] to-[#7000ff] border-4 border-white/20">
+                        <i data-lucide="medal" class="w-24 h-24 text-white"></i>
+                    </div>
+                </div>
+                <h2 class="text-5xl font-black mb-4 tracking-tighter">突破认知瓶颈！</h2>
+                <p class="text-[#00f2ff] font-mono text-lg mb-12 uppercase tracking-widest">Level 2: 进阶级逻辑已激活</p>
+                <button id="continue-to-advanced" class="px-16 py-5 bg-white text-black font-black rounded-2xl hover:scale-110 active:scale-95 transition-all text-xl shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+                    接受深度挑战
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <section id="result-screen" class="hidden w-full max-w-2xl bg-white/5 border border-white/10 p-10 md:p-14 rounded-[4rem] backdrop-blur-3xl text-center shadow-2xl relative overflow-hidden">
+            <div id="badge-display" class="mb-10"></div>
+            <h2 class="text-5xl font-black mb-2 tracking-tight">同步完成</h2>
+            <p id="final-rank-text" class="text-[#00f2ff] font-mono tracking-[0.4em] uppercase mb-12">Master Architect</p>
+            
+            <div class="flex flex-col md:flex-row gap-6 mb-12">
+                <div class="flex-1 bg-white/5 border border-white/10 rounded-[2.5rem] p-8">
+                    <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-2">Total Score</div>
+                    <div id="final-score" class="text-7xl font-black text-white tabular-nums">0</div>
+                </div>
+                
+                <div class="flex-1 bg-white/5 border border-white/10 rounded-[2.5rem] p-8 text-left">
+                    <h3 class="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em] mb-4 flex items-center gap-2">
+                        <i data-lucide="history" class="w-3 h-3"></i> 最近战绩
+                    </h3>
+                    <div id="history-mini-list" class="space-y-3 max-h-[100px] overflow-y-auto custom-scroll pr-2">
+                        <!-- History injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="leaderboard-container" class="mb-12 text-left">
+                <h3 class="text-xs font-black uppercase text-gray-500 tracking-[0.3em] flex items-center gap-3 mb-6">
+                    <i data-lucide="trophy" class="w-4 h-4 text-yellow-400"></i> <span id="track-name">Global</span> Hall of Fame
+                </h3>
+                <div id="leaderboard-list" class="space-y-3 max-h-[160px] overflow-y-auto pr-3 custom-scroll"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button id="restart-btn" class="py-5 bg-white/5 border border-white/10 rounded-2xl font-black hover:bg-white/10 transition-all flex items-center justify-center gap-3">
+                    <i data-lucide="rotate-ccw" class="w-5 h-5 text-gray-400"></i> 重新载入
+                </button>
+                <button id="share-btn" class="py-5 bg-[#00f2ff] text-black rounded-2xl font-black hover:shadow-[0_0_30px_rgba(0,242,255,0.5)] transition-all flex items-center justify-center gap-3">
+                    <i data-lucide="share-2" class="w-5 h-5"></i> 同步至神经网络
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <div id="feedback-overlay" class="fixed inset-0 pointer-events-none z-[60] transition-all duration-300 opacity-0"></div>
+
+    <script type="module" src="ui_controller.js"></script>
+</body>
+</html>
